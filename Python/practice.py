@@ -2,53 +2,43 @@ import pygame
 import random
 import sys
 
-GAME_WIDTH = 600
-GAME_HEIGHT = 600
-PIXELS = 600
-SQUARES = int(GAME_WIDTH / PIXELS)
-BLOCK_SIZE = 20
-SNAKE_COLOR = (0, 255, 0)
+from project import PIXELS
 
-#colors
-#BLACK = (0, 0, 0)
-BLUE = (0, 255, 0)
+pygame.init()
+
+# Screen size
+WIDTH = 600
+HEIGHT = 600
+BLOCK_SIZE = 20
+PIXELS = 32
+SQUARES = int(WIDTH / PIXELS)
+
+
+# Colors
+
+GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (100, 100, 100)
+
 BG1 = (156, 210, 54)
 BG2 = (147, 203, 57)
 
-class Apple:
-    def __init__(self):
-        self.color = RED
-
-
-
 class Background:
-
-    def draw(self, surface):
-      surface.fill( BG1 )
-      counter = 0
-      for row in range(SQUARES):
+ def draw(self, surface):
+    surface.fill(BG1)
+    counter = 0
+    for row in range(SQUARES):
         for col in range(SQUARES):
             if counter % 2 == 0:
-             pygame.draw.rect(surface, BG2, (col * PIXELS, row * PIXELS * PIXELS, PIXELS, PIXELS ) )
-             if col != SQUARES - 1:
-              counter += 1
+                pygame.draw.rect(surface, BG2, (col * PIXELS, row * PIXELS, PIXELS, PIXELS))
+            if col != SQUARES - 1:
+                counter += 1
 
-
-
-
-
-pygame.init()
-screen = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Snake Game')
 clock = pygame.time.Clock()
-font = pygame.font.Font(None, 50)
-
-background = Background()
-
-
+font = pygame.font.SysFont('Arial', 25)
 
 def show_score(score):
     text = font.render(f"Score: {score}", True, WHITE)
@@ -57,41 +47,24 @@ def show_score(score):
 def draw_button(text, x, y, width, height, inactive_color, active_color, action=None):
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
-    color = active_color if x < mouse[0] < x + width and y < mouse[1] < y + height else inactive_color
+    color = active_color if x < mouse[0] < x+width and y < mouse[1] < y+height else inactive_color
+
     pygame.draw.rect(screen, color, (x, y, width, height))
     button_text = font.render(text, True, WHITE)
-    text_rect = button_text.get_rect(center=(x + width // 2, y + height // 2))
+    text_rect = button_text.get_rect(center=(x + width//2, y + height//2))
     screen.blit(button_text, text_rect)
 
-    if x < mouse[0] < x + width and y < mouse[1] < y + height:
+    if x < mouse[0] < x+width and y < mouse[1] < y+height:
         if click[0] == 1 and action:
             action()
-
-
-def game_over_screen():
-    while True:
-        #screen.fill(BLACK)
-        message = font.render("GAME OVER!", True, RED)
-        screen.blit(message, (GAME_WIDTH // 2 - message.get_width() // 2, GAME_HEIGHT // 3))
-        draw_button("Retry", GAME_WIDTH // 2 - 60, GAME_HEIGHT // 2 - 150, 120, 50, GRAY, RED, game)
-        draw_button("Quit", GAME_WIDTH // 2 - 60, GAME_HEIGHT // 2 + 70, 120, 50, GRAY, RED, quit_game)
-        pygame.display.update()
-
-
-def quit_game():
-    pygame.quit()
-    sys.exit()
-
 
 def game():
     snake = [(100, 100)]
     direction = (BLOCK_SIZE, 0)
-    apple = (random.randrange(0, GAME_WIDTH, BLOCK_SIZE), random.randrange(0, GAME_HEIGHT, BLOCK_SIZE))
+    apple = (random.randrange(0, WIDTH, BLOCK_SIZE), random.randrange(0, HEIGHT, BLOCK_SIZE))
     score = 0
 
     while True:
-        background.draw(screen)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -111,32 +84,45 @@ def game():
 
         if head == apple:
             score += 1
-            apple = (random.randrange(0, GAME_WIDTH, BLOCK_SIZE), random.randrange(0, GAME_HEIGHT, BLOCK_SIZE))
+            apple = (random.randrange(0, WIDTH, BLOCK_SIZE), random.randrange(0, HEIGHT, BLOCK_SIZE))
         else:
             snake.pop()
 
         if (
-            head[0] < 0 or head[0] >= GAME_WIDTH or
-            head[1] < 0 or head[1] >= GAME_HEIGHT or
+            head[0] < 0 or head[0] >= WIDTH or
+            head[1] < 0 or head[1] >= HEIGHT or
             head in snake[1:]
         ):
-            game_over_screen()
+            break
 
-       # screen.fill(BLACK)
+        screen.fill(BG1)
         for segment in snake:
-            pygame.draw.rect(screen, BLUE, (*segment, BLOCK_SIZE, BLOCK_SIZE))
+            pygame.draw.rect(screen, GREEN, (*segment, BLOCK_SIZE, BLOCK_SIZE))
         pygame.draw.rect(screen, RED, (*apple, BLOCK_SIZE, BLOCK_SIZE))
         show_score(score)
         pygame.display.update()
+        clock.tick(10)
 
-        clock.tick(15)
+    game_over_screen()
 
-if __name__ == "__main__":
-    game()
+def game_over_screen():
+    while True:
+        screen.fill(BG1)
+        message = font.render("Game Over!", True, RED)
+        screen.blit(message, (WIDTH // 2 - message.get_width() // 2, HEIGHT // 3))
 
+        draw_button("Retry", WIDTH // 2 - 60, HEIGHT // 2, 120, 50, GRAY, RED, game)
+        draw_button("Quit", WIDTH // 2 - 60, HEIGHT // 2 + 70, 120, 50, GRAY, RED, quit_game)
 
+        pygame.display.update()
 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
 
+def quit_game():
+    pygame.quit()
+    sys.exit()
 
-
-
+game()

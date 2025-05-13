@@ -7,10 +7,10 @@ from project import PIXELS
 pygame.init()
 
 # Screen size
-WIDTH = 600
-HEIGHT = 600
-BLOCK_SIZE = 20
-PIXELS = 32
+WIDTH = 650
+HEIGHT = 650
+BLOCK_SIZE = 25
+PIXELS = 25
 SQUARES = int(WIDTH / PIXELS)
 
 
@@ -25,7 +25,7 @@ BG1 = (156, 210, 54)
 BG2 = (147, 203, 57)
 
 class Background:
- def draw(self, surface):
+   def draw(self, surface):
     surface.fill(BG1)
     counter = 0
     for row in range(SQUARES):
@@ -63,6 +63,7 @@ def game():
     direction = (BLOCK_SIZE, 0)
     apple = (random.randrange(0, WIDTH, BLOCK_SIZE), random.randrange(0, HEIGHT, BLOCK_SIZE))
     score = 0
+    background = Background()
 
     while True:
         for event in pygame.event.get():
@@ -95,7 +96,7 @@ def game():
         ):
             break
 
-        screen.fill(BG1)
+        background.draw(screen)
         for segment in snake:
             pygame.draw.rect(screen, GREEN, (*segment, BLOCK_SIZE, BLOCK_SIZE))
         pygame.draw.rect(screen, RED, (*apple, BLOCK_SIZE, BLOCK_SIZE))
@@ -107,7 +108,7 @@ def game():
 
 def game_over_screen():
     while True:
-        screen.fill(BG1)
+        screen.fill(WHITE)
         message = font.render("Game Over!", True, RED)
         screen.blit(message, (WIDTH // 2 - message.get_width() // 2, HEIGHT // 3))
 
